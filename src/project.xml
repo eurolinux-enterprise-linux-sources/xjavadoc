@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE project [
+    <!ENTITY Ouml   "&#214;">
+    <!ENTITY oslash "&#248;">
+]>
+
+<project>
+    <pomVersion>3</pomVersion>
+    <groupId>xjavadoc</groupId>
+    <id>xjavadoc</id>
+    <name>XJavaDoc</name>
+    <currentVersion>1.1</currentVersion>
+    <organization>
+        <name>XDoclet Team</name>
+        <url>http://xdoclet.sourceforge.net/xjavadoc/</url>
+        <logo>http://xdoclet.sourceforge.net/images/logo.gif</logo>
+    </organization>
+    <inceptionYear>2002</inceptionYear>
+    <package>xjavadoc</package>
+    <logo>http://sourceforge.net/sflogo.php?group_id=31602&amp;type=5</logo>
+    <shortDescription>
+        XJavaDoc is a Java source code parser that provides a high level API 
+        similar to com.sun.javadoc.
+    </shortDescription>   
+    <description>
+        The XJavaDoc engine is a complete rewrite of Sun's JavaDoc engine that 
+        is faster and more suited for XDoclet (although it is completely 
+        standalone). It scans java source code and makes information about a 
+        class available via special java beans that are part of the XJavaDoc 
+        core. These beans provide the same information about a class as Sun's 
+        JavaDoc API, and some nice extra features.
+    </description>
+    <url>http://xdoclet.sourceforge.net/xjavadoc/</url>
+    <issueTrackingUrl>http://opensource.atlassian.com/projects/xdoclet/</issueTrackingUrl>
+    <siteAddress>shell.sourceforge.net</siteAddress>
+    <siteDirectory>/home/groups/x/xd/xdoclet/htdocs/xjavadoc</siteDirectory>
+    <distributionDirectory>/home/groups/x/xd/xdoclet/htdocs/repository</distributionDirectory>
+    <repository>
+        <connection>scm:cvs:pserver:anonymous@cvs.sourceforge.net:/cvsroot/xdoclet:xjavadoc</connection>
+        <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/xdoclet/xjavadoc/</url>
+    </repository>
+
+    <developers>
+        <developer>
+            <name>Aslak Helles&oslash;y</name>
+            <id>rinkrank</id>
+            <email>no.spam.rinkrank@users.sourceforge.net</email>
+            <roles>
+                <role>Project Lead</role>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <name>Ara Abrahamian</name>
+            <id>ara_e_w</id>
+            <email>no.spam.ara_e_w@users.sourceforge.net</email>
+            <roles>
+                <role>Project Lead</role>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <name>Konstantin Priblouda</name>
+            <id>ko5tik</id>
+            <email>no.spam.ko5tik@users.sourceforge.net</email>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+    </developers>
+    <contributors>
+        <contributor>
+            <name>Vincent Harcq</name>
+            <id>vharcq</id>
+            <email>no.spam.vharcq@users.sourceforge.net</email>
+            <roles>
+                <role>Performance optimisations</role>
+            </roles>
+        </contributor>
+        <contributor>
+            <name>Mathias Bogaert</name>
+            <id>pathoss</id>
+            <email>no.spam.pathoss@users.sourceforge.net</email>
+            <roles>
+                <role>Various patches</role>
+            </roles>
+        </contributor>
+        <contributor>
+            <name>Dmitri Colebatch</name>
+            <id>dimc</id>
+            <email>no.spam.dimc@users.sourceforge.net</email>
+            <roles>
+                <role>File abstraction patch</role>
+            </roles>
+        </contributor>
+        <contributor>
+            <name>Andrew Stevens</name>
+            <id>stevensa</id>
+            <email>no.spam.stevensa@users.sourceforge.net</email>
+            <roles>
+                <role>Various patches</role>
+            </roles>
+        </contributor>
+        <contributor>
+            <name>Marcus Brito</name>
+            <id>pazu</id>
+            <email>no.spam.pazu@users.sourceforge.net</email>
+            <roles>
+                <role>Properties support in @tags</role>
+            </roles>
+        </contributor>
+        <contributor>
+            <name>David Jencks</name>
+            <id>d_jencks</id>
+            <email>no.spam.d_jencks@users.sourceforge.net</email>
+            <roles>
+                <role>Various patches</role>
+            </roles>
+        </contributor>
+        <contributor>
+            <name>Jesse Stockall</name>
+            <id>stockall</id>
+            <email>no.spam.stockall@magma.ca</email>
+            <roles>
+                <role>Patch for resolving of inner classes</role>
+            </roles>
+        </contributor>
+        <contributor>
+            <name>Gavin King</name>
+            <id>oneovthafew</id>
+            <email>no.spam.oneovthafew@users.sourceforge.net</email>
+            <roles>
+                <role>Patch for tags defined on interfaces</role>
+            </roles>
+        </contributor>
+		<contributor>
+			<name>Heiko W. Rupp</name>
+			<id>pilhuhn</id>
+			<email>no.spam.hwr@pilhuhn.de</email>
+			<roles>
+				<role>Cleanout of deprecated typed collections</role>
+				<timezone>+1</timezone>
+			</roles>
+		</contributor>
+    </contributors>
+
+    <dependencies>
+        <dependency>
+            <id>javacc</id>
+            <version>2.1</version>
+            <jar>JavaCC.zip</jar>
+            <url>https://javacc.dev.java.net/</url>
+        </dependency>
+
+        <dependency>
+            <id>ant</id>
+            <version>1.5.2</version>
+            <url>http://ant.apache.org/</url>
+        </dependency>
+
+        <dependency>
+            <id>commons-collections</id>
+            <version>2.1</version>
+            <url>http://jakarta.apache.org/commons/collections/</url>
+        </dependency>
+
+        <dependency>
+            <id>log4j</id>
+            <version>1.2.7</version>
+            <url>http://jakarta.apache.org/log4j/</url>
+        </dependency>
+
+        <dependency>
+            <id>junit</id>
+            <version>3.8.1</version>
+            <url>http://junit.org/</url>
+        </dependency>
+
+        <dependency>
+            <groupId>statcvs</groupId>
+            <artifactId>maven-statcvs-plugin</artifactId>
+            <version>2.4</version>
+            <type>plugin</type>
+        </dependency>
+    </dependencies>
+
+    <mailingLists>
+        <mailingList>
+            <name>XDoclet User List</name>
+            <subscribe>http://lists.sourceforge.net/lists/listinfo/xdoclet-user</subscribe>
+            <unsubscribe>http://lists.sourceforge.net/lists/listinfo/xdoclet-user</unsubscribe>
+            <archive>http://www.mail-archive.com/xdoclet-user%40lists.sourceforge.net/</archive>
+        </mailingList>
+        <mailingList>
+            <name>XDoclet Developer List</name>
+            <subscribe>http://lists.sourceforge.net/lists/listinfo/xdoclet-devel</subscribe>
+            <unsubscribe>http://lists.sourceforge.net/lists/listinfo/xdoclet-devel</unsubscribe>
+            <archive>http://www.mail-archive.com/xdoclet-devel%40lists.sourceforge.net/</archive>
+        </mailingList>
+        <mailingList>
+            <name>XDoclet Announce List</name>
+            <subscribe>http://lists.sourceforge.net/lists/listinfo/xdoclet-announce</subscribe>
+            <unsubscribe>http://lists.sourceforge.net/lists/listinfo/xdoclet-announce</unsubscribe>
+            <archive>http://sourceforge.net/mailarchive/forum.php?forum_id=1104</archive>
+        </mailingList>
+    </mailingLists>
+
+    <build>
+        <nagEmailAddress>xdoclet-devel@lists.sourceforge.net</nagEmailAddress>
+        <sourceDirectory>target/src</sourceDirectory>
+        <unitTestSourceDirectory>target/junit</unitTestSourceDirectory>
+    </build>
+</project>

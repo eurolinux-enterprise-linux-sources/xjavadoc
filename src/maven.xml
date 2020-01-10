@@ -1,0 +1,157 @@
+<project default="jar:install"
+         xmlns:j="jelly:core"
+         xmlns:maven="jelly:maven">
+
+    <goal name="init">
+    
+        <path id="xdoclet.class.path">
+            <path refid="maven.dependency.classpath"/>
+            <pathelement location="${pom.build.sourceDirectory}"/>
+            <pathelement location="${maven.build.dest}"/>
+        </path>
+
+        <taskdef name="xdoclet" classname="xdoclet.ant.XDocletTask" classpathref="xdoclet.class.path"/>
+        <taskdef name="antdoclet" classname="xdoclet.sdk.ant.AntDocletTask" classpathref="xdoclet.class.path"/>
+    </goal>
+
+    <preGoal name="site">
+        <attainGoal name="maven-clover-plugin:register"/>
+        <attainGoal name="clover"/> 
+        
+        <attainGoal name="maven-statcvs-plugin:register"/>
+
+        <attainGoal name="maven-linkcheck-plugin:deregister"/>
+        <attainGoal name="maven-checkstyle-plugin:deregister"/>
+
+        <attainGoal name="java:jar"/>
+    </preGoal>
+
+    <goal name="maven-linkcheck-plugin:report-real">
+       <echo>Skipping linkcheck</echo>
+    </goal>
+    
+    <goal name="maven-checkstyle-plugin:report">
+       <echo>Skipping checkstyle</echo>
+    </goal>
+    
+    <preGoal name="java:compile">
+      <attainGoal name="copysrc"/>
+      <attainGoal name="nodeparser"/>
+      <attainGoal name="simpleparser"/>
+    </preGoal>
+
+    <goal name="copysrc" description="Copies the source code to the target">
+      <mkdir dir="${pom.build.sourceDirectory}"/>
+      <copy todir="${pom.build.sourceDirectory}">
+         <fileset dir="${maven.src.dir}">
+            <include name="**/*.java"/>
+            <include name="**/package.html"/>
+         </fileset>
+      </copy>
+      <mkdir dir="${pom.build.unitTestSourceDirectory}"/>
+      <copy todir="${pom.build.unitTestSourceDirectory}">
+         <fileset dir="${basedir}/junit"/>
+      </copy>
+    </goal>
+    
+    <goal name="nodeparser" description="Generates a parser that keeps the AST">
+      <copy
+         file="${basedir}/javacc/Java1.2-b.jjt" 
+         tofile="${pom.build.sourceDirectory}/xjavadoc/nodeparser.jjt"
+      >
+         <filterset>
+            <filter token="parser-class" value="NodeParser" />
+            <filter token="set-compilation-unit" value="sourceClass.setCompilationUnit( jjtThis );" />
+         </filterset>
+      </copy>
+
+      <jjtree
+         target="${pom.build.sourceDirectory}/xjavadoc/nodeparser.jjt"
+         outputdirectory="${pom.build.sourceDirectory}/xjavadoc"
+         javacchome="${maven.repo.local}/javacc/jars"
+         static="false"
+         nodeusesparser="true"
+         visitor="false"
+         multi="false"
+      />
+
+      <javacc
+         target="${pom.build.sourceDirectory}/xjavadoc/nodeparser.jj"
+         javacchome="${maven.repo.local}/javacc/jars"
+         javaunicodeescape="true"
+         unicodeinput="false"
+         static="false"
+         cachetokens="true"
+      />
+    </goal>
+    
+    <goal name="simpleparser">
+      <copy
+         file="${basedir}/javacc/Java1.2-b.jjt" 
+         tofile="${pom.build.sourceDirectory}/xjavadoc/simpleparser.jj"
+      >
+         <filterset>
+            <filter token="parser-class" value="SimpleParser" />
+            <filter token="set-compilation-unit" value="// In SimpleParser we can't use nodes" />
+         </filterset>
+      </copy>
+
+      <javacc
+         target="${pom.build.sourceDirectory}/xjavadoc/simpleparser.jj"
+         javacchome="${maven.repo.local}/javacc/jars"
+         javaunicodeescape="true"
+         unicodeinput="false"
+         static="false"
+         cachetokens="true"
+      />
+   </goal>
+
+    <preGoal name="test:compile">
+      <attainGoal name="generate-tests"/>
+    </preGoal>
+
+    <goal name="generate-tests">
+
+      <!-- 
+      WE'RE USING THE OLD XDOCLET, THE ONE THAT USES SUN'S JAVADOC. 
+      IT'S TO SEE IF XJAVADOC DOES THE SAME JOB AS JAVADOC 
+      -->
+      <path id="xdoclet.1.1.2.classpath">
+        <path refid="maven.dependency.classpath"/>
+        <pathelement path="${basedir}/lib/xdoclet.jar"/>
+        <pathelement path="${build.classes.dir}"/>
+        <pathelement path="${java.home}/../lib/tools.jar"/>
+      </path>
+
+      <taskdef
+         name="xdoclet"
+         classname="xdoclet.DocletTask"
+         classpathref="xdoclet.1.1.2.classpath">
+      </taskdef>
+
+      <xdoclet 
+         sourcepath="${pom.build.sourceDirectory}" 
+         destdir="${pom.build.unitTestSourceDirectory}"
+         classpathref="xdoclet.1.1.2.classpath"
+      >
+         <fileset dir="${pom.build.sourceDirectory}">
+            <!-- Just run it over the biggest classes -->
+            <include name="xjavadoc/XJavaDoc.java"/>
+            <include name="xjavadoc/AbstractClass.java"/>
+            <include name="xjavadoc/XDoc.java"/>
+            <include name="xjavadoc/SourceClass.java"/>
+            <include name="xjavadoc/DefaultXTag.java"/>
+            <include name="xjavadoc/AbstractExecutableMember.java"/>
+            <include name="xjavadoc/XClass.java"/>
+            <exclude name="**/*__GENERATED__Test.java"/>
+         </fileset>
+         <template
+            templateFile="${basedir}/etc/xjavadoctest.j"
+            destinationFile="{0}__GENERATED__Test.java"
+            subTaskClassName="xdoclet.NoInnerClassSubTask"
+         />
+      </xdoclet>
+
+    </goal>
+
+</project>

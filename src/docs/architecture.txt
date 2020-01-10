@@ -1,0 +1,39 @@
+This is a basic overview of the differences between Sun's Javadoc and XDoclet's XJavadoc
+
+Javadoc:
+
+      +---------+
+      |   Doc   |  <---- methods to access tags (information in the /** docs */
+      +---------+
+           ^
+          /|\  <--- inheritance
+           |
+  +-------------------+
+  | ProgramElementDoc |  <---- methods to access java code information 
+  +-------------------+
+
+XJavadoc:
+
+      +---------+
+      |   XDoc  |  <---- methods to access tags (information in the /** docs */
+      +---------+
+           ^
+           | <--- XProgramElement *contains* an instance of XDoc. the XDoc instance knows what XProgramElement it is contained within
+           v
+  +-------------------+
+  |  XProgramElement  |  <---- methods to access java code information 
+  +-------------------+
+
+
+This is the main architectural difference between the two APIs. In the Javadoc API, everything is-a Doc. In the XJavadoc API, 
+everything has-a XDoc. I made this decision becaus I thought it was a cleaner design.
+
+Inheritance of tags is handled from XDoc.superDoc(). This is a private method, and is used by the various tags() methods (by passing
+a boolean variable to determine whether the superDoc's tags should be retrieved too. -So what does superDoc mean? It makes sense
+for classes, methods and constructors (not for fields). XDoc.superDoc() calls its owner (the XProgramElement) 's superElement()
+method. This method is implemented differently in the XProgramElement implementations:
+
+-AbstractClass.superElement() returns the superclass
+-ConstructorImpl.superElement() walks up superclasses and returns the first constructor with a matching signature
+-MethodImpl.superElement() walks up superclasses and returns the first method with a matching signature
+-FieldImpl.superElement() returns null (fields can't be overridden)

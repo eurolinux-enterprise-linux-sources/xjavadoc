@@ -1,0 +1,6 @@
+build
+javadoc*
+inplace*
+junit-*
+*.log
+target

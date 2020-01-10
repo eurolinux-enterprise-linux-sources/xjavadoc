@@ -1,0 +1,238 @@
+<?xml version="1.0"?>
+
+<project name="XJavaDoc" default="jar" basedir=".">
+   <property name="version" value="1.1"/>
+   <property name="build.dir" location="${basedir}/target"/>
+   <property name="jardir" location="${build.dir}"/>
+   <property name="rootdir" location="${basedir}"/>
+   <property name="javacchome" location="${basedir}/lib"/>
+
+   <!-- =================================================================== -->
+   <!-- Initialization target.                                              -->
+   <!-- =================================================================== -->
+   <target name="init">
+
+      <path id="classpath">
+         <fileset dir="${basedir}/lib">
+            <include name="*.jar"/>
+         </fileset>
+         <fileset dir="${ant.home}/lib">
+            <include name="*.jar"/>
+         </fileset>
+         <pathelement path="${build.dir}/classes"/>
+         <pathelement path="${build.dir}/test-classes"/>
+         <pathelement path="${java.home}/../lib/tools.jar"/>
+      </path>
+   </target>
+
+   <!-- =================================================================== -->
+   <!-- Prepares the source code                                            -->
+   <!-- =================================================================== -->
+   <target name="prepare" depends="init">
+      <mkdir dir="${build.dir}/src"/>
+      <mkdir dir="${build.dir}/junit"/>
+      <mkdir dir="${build.dir}/classes"/>
+      <copy todir="${build.dir}/src">
+         <fileset dir="${basedir}/src">
+            <include name="**/*.java"/>
+            <include name="**/package.html"/>
+         </fileset>
+      </copy>
+      <copy todir="${build.dir}/junit">
+         <fileset dir="${basedir}/junit">
+            <include name="**/*.java"/>
+            <include name="**/package.html"/>
+         </fileset>
+      </copy>
+   </target>
+
+   <!-- =================================================================== -->
+   <!-- Compiles the source code                                            -->
+   <!-- =================================================================== -->
+   <target name="compile" depends="generate-parsers" description="Compiles the source code">
+      <javac
+         srcdir="${build.dir}/src"
+         destdir="${build.dir}/classes"
+         classpathref="classpath"
+         debug="on"
+         deprecation="on"
+         optimize="off"
+         nowarn="off"
+      />
+   </target>
+
+   <!-- =================================================================== -->
+   <!-- Makes the jar                                                       -->
+   <!-- =================================================================== -->
+   <target name="jar" depends="junit">
+      <jar jarfile="${jardir}/xjavadoc-${version}.jar">
+         <fileset dir="${build.dir}/classes">
+            <exclude name="**/*Test.class"/>
+         </fileset>
+         <!--fileset dir="${log4j.dir}">
+            <include name="${log4j.file}"/>
+         </fileset-->
+      </jar>
+   </target>
+
+   <!-- =================================================================== -->
+   <!-- Generates JUnit tests                                               -->
+   <!-- =================================================================== -->
+   <target name="generate-tests" depends="compile" description="Generates JUnit tests">
+      <!--
+      WE'RE USING THE OLD XDOCLET, THE ONE THAT USES SUN'S JAVADOC.
+      IT'S TO SEE IF XJAVADOC DOES THE SAME JOB AS JAVADOC
+      -->
+      <taskdef
+         name="xdoclet"
+         classname="xdoclet.DocletTask"
+         classpathref="classpath"
+      />
+
+      <xdoclet
+         sourcepath="${basedir}/src"
+         destdir="${build.dir}/junit"
+         classpathref="classpath"
+      >
+         <fileset dir="${build.dir}/src">
+            <!-- Just run it over the biggest classes -->
+            <include name="xjavadoc/XJavaDoc.java"/>
+            <include name="xjavadoc/AbstractClass.java"/>
+            <include name="xjavadoc/XDoc.java"/>
+            <include name="xjavadoc/SourceClass.java"/>
+            <include name="xjavadoc/DefaultXTag.java"/>
+            <include name="xjavadoc/AbstractExecutableMember.java"/>
+            <include name="xjavadoc/XClass.java"/>
+            <exclude name="**/*__GENERATED__Test.java"/>
+         </fileset>
+         <template
+            templateFile="${basedir}/etc/xjavadoctest.j"
+            destinationFile="{0}__GENERATED__Test.java"
+            subTaskClassName="xdoclet.NoInnerClassSubTask"
+         />
+      </xdoclet>
+
+      <mkdir dir="${build.dir}/test-classes"/>
+      <javac
+         srcdir="${build.dir}/junit"
+         destdir="${build.dir}/test-classes"
+         classpathref="classpath"
+         debug="on"
+         deprecation="on"
+         optimize="off"
+         nowarn="off"
+      />
+   </target>
+
+   <!-- =================================================================== -->
+   <!-- Runs JUnit tests                                                    -->
+   <!-- =================================================================== -->
+   <target name="junit" depends="generate-tests" description="Runs All JUnit tests">
+      <mkdir dir="${build.dir}/test-reports"/>
+      <junit
+         fork="yes"
+         printsummary="yes"
+         haltonfailure="true"
+      >
+         <classpath refid="classpath"/>
+         <sysproperty key="basedir" value="${rootdir}"/>
+
+         <batchtest todir="${build.dir}/test-reports">
+            <fileset dir="${build.dir}/test-classes"/>
+
+            <formatter type="xml"/>
+         </batchtest>
+      </junit>
+   </target>
+
+   <!-- =================================================================== -->
+   <!-- Generates test reports                                              -->
+   <!-- =================================================================== -->
+   <target name="junit-report" depends="junit" description="Generates JUnit test reports">
+      <mkdir dir="${build.dir}/docs/junit"/>
+      <junitreport todir="${build.dir}/docs/junit">
+         <fileset dir="${build.dir}/test-reports">
+            <include name="TEST-*.xml"/>
+         </fileset>
+         <report format="frames" todir="${build.dir}/docs/junit"/>
+      </junitreport>
+   </target>
+
+   <!-- =================================================================== -->
+   <!-- Cleans targets                                                      -->
+   <!-- =================================================================== -->
+   <target name="clean" depends="init" description="Cleans the build directories">
+      <delete dir="${build.dir}"/>
+   </target>
+
+   <!-- =================================================================== -->
+   <!-- Copies the grammar, replacing @parser-class@ and                    -->
+   <!-- @set-compilation-unit@ with a one-liner of java code                -->
+   <!-- =================================================================== -->
+   <target name="copy-grammar">
+      <copy
+         file="${basedir}/javacc/Java1.2-b.jjt"
+         tofile="${build.dir}/src/xjavadoc/${destination-grammar}"
+      >
+         <filterset>
+            <filter token="parser-class" value="${parser-class}" />
+            <filter token="set-compilation-unit" value="${set-compilation-unit}" />
+         </filterset>
+      </copy>
+   </target>
+
+   <target name="generate-parsers" depends="generate-node-parser,generate-simple-parser"/>
+
+   <!-- =================================================================== -->
+   <!-- JavaCC                                                              -->
+   <!-- =================================================================== -->
+   <target name="generate-simple-parser" depends="prepare">
+      <antcall target="copy-grammar">
+         <param name="destination-grammar" value="simpleparser.jj"/>
+         <param name="parser-class" value="SimpleParser"/>
+         <param name="set-compilation-unit" value="// In SimpleParser we can't use nodes"/>
+      </antcall>
+      <javacc
+         target="${build.dir}/src/xjavadoc/simpleparser.jj"
+         javacchome="${javacchome}"
+         javaunicodeescape="true"
+         unicodeinput="false"
+         static="false"
+         cachetokens="true"
+      />
+   </target>
+
+   <!-- =================================================================== -->
+   <!-- JavaCC                                                              -->
+   <!-- =================================================================== -->
+   <target name="generate-node-parser" depends="jjtree">
+      <javacc
+         target="${build.dir}/src/xjavadoc/nodeparser.jj"
+         javacchome="${javacchome}"
+         javaunicodeescape="true"
+         unicodeinput="false"
+         static="false"
+         cachetokens="true"
+      />
+   </target>
+
+   <!-- =================================================================== -->
+   <!-- JJTree                                                              -->
+   <!-- =================================================================== -->
+   <target name="jjtree" depends="prepare">
+      <antcall target="copy-grammar">
+         <param name="destination-grammar" value="nodeparser.jjt"/>
+         <param name="parser-class" value="NodeParser"/>
+         <param name="set-compilation-unit" value="sourceClass.setCompilationUnit( jjtThis );"/>
+      </antcall>
+      <jjtree
+         target="${build.dir}/src/xjavadoc/nodeparser.jjt"
+         outputdirectory="${build.dir}/src/xjavadoc"
+         javacchome="${javacchome}"
+         static="false"
+         nodeusesparser="true"
+         visitor="false"
+         multi="false"
+      />
+   </target>
+</project>
